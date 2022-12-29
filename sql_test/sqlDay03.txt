@@ -1,0 +1,352 @@
+sqlDay03
+
+/* mid=40 final=40 attend=10 hw=10 */
+
+/* mid=40 final=40 attend=10 hw=10 */
+/* at_tot = mid+final+attend+hw  추가!! */
+/* alter table 테이블명 after at_hw */
+
+alter table attend add at_tot int after at_hw;
+
+update attend set at_tot = at_mid + at_final + at_attend + at_hw; 	//where를 쓸 필요 없음. 모든 값에 넣어야하므로
+
+
+
+/* at_repetition 재수강여부 */
+/* 출석이 5 이하 또는 점수 총합이 50점 이하이면 재수강 y*/
+/* 점수와 상관없이 출석이 5 이하이면 무조건 y */
+SELECT * FROM school.attend;
+
+update attend set at_repetition =  if(at_attend <= 5, 'y' ,if(aT_tot <= 50, 'y','n'));
+update attend set at_repetition =  'y' where at_attend <=5 or at_tot <=50;
+
+
+select * from attend;
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+| at_num | at_st_num  | at_co_code   | at_mid | at_final | at_attend | at_hw | at_tot | at_repetition | at_year | at_term | at_score |
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+|      1 | 2020160001 | 202021msc001 |     40 |       40 |        10 |    10 |    100 | n             |    2020 | 2       |          |
+|      2 | 2020160002 | 202021msc001 |     20 |       10 |         5 |     1 |     36 | y             |    2020 | 2       |          |
+|      3 | 2020160001 | 202021ipc002 |     17 |       10 |         2 |     2 |     31 | y             |    2020 | 2       |          |
+|      4 | 2020160002 | 202021ipc002 |     30 |       35 |         8 |     7 |     80 | n             |    2020 | 2       |          |
+|      5 | 2020123001 | 202021ipc002 |     25 |       40 |         9 |     9 |     83 | n             |    2020 | 2       |          |
+|      6 | 2020123020 | 202021ipc002 |     28 |       32 |         8 |     8 |     76 | n             |    2020 | 2       |          |
+|      7 | 2019456001 | 202021ipc002 |     40 |       38 |        10 |    10 |     98 | n             |    2020 | 2       |          |
+|      8 | 2019160123 | 202021ipc002 |     29 |       25 |        10 |     6 |     70 | n             |    2020 | 2       |          |
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+8 rows in set (0.00 sec)
+
+/* at_score A90, B80, C70, D60, F~*/
+
+update attend set at_score = 
+case 
+when at_tot >=90 then 'A'
+when at_tot >=80 then 'B'
+when at_tot >=70 then 'C'
+when at_tot >=60 then 'D'
+when at_tot < 60 then 'F'
+end;
+
+ select * from attend;
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+| at_num | at_st_num  | at_co_code   | at_mid | at_final | at_attend | at_hw | at_tot | at_repetition | at_year | at_term | at_score |
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+|      1 | 2020160001 | 202021msc001 |     40 |       40 |        10 |    10 |    100 | n             |    2020 | 2       | A        |
+|      2 | 2020160002 | 202021msc001 |     20 |       10 |         5 |     1 |     36 | y             |    2020 | 2       | F        |
+|      3 | 2020160001 | 202021ipc002 |     17 |       10 |         2 |     2 |     31 | y             |    2020 | 2       | F        |
+|      4 | 2020160002 | 202021ipc002 |     30 |       35 |         8 |     7 |     80 | n             |    2020 | 2       | B        |
+|      5 | 2020123001 | 202021ipc002 |     25 |       40 |         9 |     9 |     83 | n             |    2020 | 2       | B        |
+|      6 | 2020123020 | 202021ipc002 |     28 |       32 |         8 |     8 |     76 | n             |    2020 | 2       | C        |
+|      7 | 2019456001 | 202021ipc002 |     40 |       38 |        10 |    10 |     98 | n             |    2020 | 2       | A        |
+|      8 | 2019160123 | 202021ipc002 |     29 |       25 |        10 |     6 |     70 | n             |    2020 | 2       | C        |
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+8 rows in set (0.00 sec)
+
+
+update attend set at_score = 
+case 
+when at_tot < 60 or at_attend <=5 then 'F'
+when at_tot >=90 then 'A'
+when at_tot >=80 then 'B'
+when at_tot >=70 then 'C'
+when at_tot >=60 then 'D'
+end;
+select * from attend;
+
+
+select std_name as '재수강자 명단' , at_repetition as '재수강여부' from student join attend on std_num = at_st_num where at_repetition ='y' order by std_name; 
+
+
++---------------------+-----------------+
+| 재수강자 명단       | 재수강여부      |
++---------------------+-----------------+
+| 강나래              | y               |
+| 강철수              | y               |
+| 나영희              | y               |
++---------------------+-----------------+
+3 rows in set (0.00 sec)
+
+
+select co_name as '과목' , sum(at_mid) as '중간합계' , sum(at_final) as '기말합계' from attend
+join course on at_co_code = co_code
+group by co_name;
+
+
++--------------------+--------------+--------------+
+| 과목               | 중간합계     | 기말합계     |
++--------------------+--------------+--------------+
+| 대학수학기초       |           60 |           50 |
+| 기초전기           |          169 |          180 |
++--------------------+--------------+--------------+
+
+/*재수강자 명단 출력 강oo 으로, repeat(문자,숫자) : 문자를 숫자만큼 반복*/
+
+
+select concat(left(std_name,1),repeat('x',length(std_name)/3-1))as'xx명단 새로이 출력' from student;
+select concat(left(std_name,1),repeat('x',char_length(std_name)-1))as'xx명단 새로이 출력' from student;
+
+
+/* 2021 1학기 점수(at_mid, at_final) 와 at_tot를 0으로 변경, 재수강 = 'n', at_score = null */
+
+update attend set at_repetition = 'n', at_score = null , at_mid = 0 , at_final =0 ,at_tot =0, at_attend =0,at_hw=0 where at_term =1;
+
+select * from attend;
+
+
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+| at_num | at_st_num  | at_co_code   | at_mid | at_final | at_attend | at_hw | at_tot | at_repetition | at_year | at_term | at_score |
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+|      1 | 2020160001 | 202021msc001 |      0 |        0 |         0 |     0 |      0 | n             |    2021 | 1       | NULL     |
+|      2 | 2020160002 | 202021msc001 |      0 |        0 |         0 |     0 |      0 | n             |    2021 | 1       | NULL     |
+|      3 | 2020160001 | 202021ipc002 |     17 |       10 |         2 |     2 |     31 | y             |    2020 | 2       | F        |
+|      4 | 2020160002 | 202021ipc002 |     30 |       35 |         8 |     7 |     80 | n             |    2020 | 2       | B        |
+|      5 | 2020123001 | 202021ipc002 |      0 |        0 |         0 |     0 |      0 | n             |    2021 | 1       | NULL     |
+|      6 | 2020123020 | 202021ipc002 |     28 |       32 |         8 |     8 |     76 | n             |    2020 | 2       | C        |
+|      7 | 2019456001 | 202021ipc002 |     40 |       38 |        10 |    10 |     98 | n             |    2020 | 2       | A        |
+|      8 | 2019160123 | 202021ipc002 |     29 |       25 |        10 |     6 |     70 | n             |    2020 | 2       | C        |
++--------+------------+--------------+--------+----------+-----------+-------+--------+---------------+---------+---------+----------+
+8 rows in set (0.00 sec)
+
+/*학생이름, 과목명, 교수, 시간표 출력 - 이름순 정렬*/
+select std_name as'학생이름', co_name as'과목명', co_professor as'담당교수', co_timetable as'시간표' from student 
+join attend on std_num = at_st_num
+join course on at_co_code = co_code order by std_name;
+
++--------------+--------------------+--------------+-------------------------+
+| 학생이름     | 과목명             | 담당교수     | 시간표                  |
++--------------+--------------------+--------------+-------------------------+
+| 강길동       | 기초전기           | 이순신       | 월1A,1B,2A,목1A,1B,2A   |
+| 강나래       | 기초전기           | 이순신       | 월1A,1B,2A,목1A,1B,2A   |
+| 강철수       | 대학수학기초       | 홍길동       | 월1A,1B,2A,수1A,1B,2A   |
+| 강철수       | 기초전기           | 이순신       | 월1A,1B,2A,목1A,1B,2A   |
+| 나영희       | 대학수학기초       | 홍길동       | 월1A,1B,2A,수1A,1B,2A   |
+| 나영희       | 기초전기           | 이순신       | 월1A,1B,2A,목1A,1B,2A   |
+| 박철수       | 기초전기           | 이순신       | 월1A,1B,2A,목1A,1B,2A   |
+| 전봉준       | 기초전기           | 이순신       | 월1A,1B,2A,목1A,1B,2A   |
++--------------+--------------------+--------------+-------------------------+
+8 rows in set (0.00 sec)
+
+/*score 별 인원수, 평균 출력!! null은 포함안함*/
+select at_score as '학점', count(at_score) as '인원수', round(avg(at_tot),0) as '평균'
+from attend 
+where at_score is not null
+group by at_score
+order by at_score;
++--------+-----------+--------+
+| 학점   | 인원수    | 평균   |
++--------+-----------+--------+
+| A      |         1 |     98 |
+| B      |         1 |     80 |
+| C      |         2 |     73 |
+| F      |         1 |     31 |
++--------+-----------+--------+
+4 rows in set (0.00 sec)
+
+/* DB에서 변수사용*/
+set @name = '전봉준';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from student where std_name = @name;
++------------+-----------+-----------------+----------+---------------+
+| std_num    | std_name  | std_major       | std_term | std_com_point |
++------------+-----------+-----------------+----------+---------------+
+| 2019160123 | 전봉준    | 컴퓨터공학      |        2 |            64 |
++------------+-----------+-----------------+----------+---------------+
+1 row in set (0.00 sec)
+
+
+/*student table에 std_point 필드 추가 후 학생이 수강한 학점의 합게를 입력*/
+
+ update student set std_point = 0;
+Query OK, 0 rows affected (0.00 sec)
+Rows matched: 6  Changed: 0  Warnings: 0
+
+mysql> select * from student;
++------------+-----------+-----------------+----------+---------------+-----------+
+| std_num    | std_name  | std_major       | std_term | std_com_point | std_point |
++------------+-----------+-----------------+----------+---------------+-----------+
+| 2019160123 | 전봉준    | 컴퓨터공학      |        2 |            64 |         0 |
+| 2019456001 | 강길동    | 디자인          |        3 |            60 |         0 |
+| 2020123001 | 강나래    | 화학공학        |        1 |            21 |         0 |
+| 2020123020 | 박철수    | 화학공학        |        1 |            20 |         0 |
+| 2020160001 | 강철수    | 컴퓨터공학      |        1 |            20 |         0 |
+| 2020160002 | 나영희    | 컴퓨터공학      |        1 |            19 |         0 |
++------------+-----------+-----------------+----------+---------------+-----------+
+6 rows in set (0.00 sec)
+
+mysql> update student set std_point =
+    -> (select sum(co_point) from course
+    -> join attend on at_co_code = co_code
+    -> where at_st_num = std_num
+    -> group by at_st_num);
+Query OK, 6 rows affected (0.00 sec)
+Rows matched: 6  Changed: 6  Warnings: 0
+
+mysql> select * from student;
++------------+-----------+-----------------+----------+---------------+-----------+
+| std_num    | std_name  | std_major       | std_term | std_com_point | std_point |
++------------+-----------+-----------------+----------+---------------+-----------+
+| 2019160123 | 전봉준    | 컴퓨터공학      |        2 |            64 |         3 |
+| 2019456001 | 강길동    | 디자인          |        3 |            60 |         3 |
+| 2020123001 | 강나래    | 화학공학        |        1 |            21 |         3 |
+| 2020123020 | 박철수    | 화학공학        |        1 |            20 |         3 |
+| 2020160001 | 강철수    | 컴퓨터공학      |        1 |            20 |         6 |
+| 2020160002 | 나영희    | 컴퓨터공학      |        1 |            19 |         6 |
++------------+-----------+-----------------+----------+---------------+-----------+
+6 rows in set (0.00 sec)
+
+
+/**/
+-- 트리거 : 이벤트에 반응하여 자동으로 실행되는 구문
+-- 이벤트가 발생했을 때 데이터의 무결성(일관성)을 지킬 때 사용
+-- if not exists, if exists
+-- create table if not exists [테이블명] : 같은 테이블이 없을 때 생성
+-- drop table if exists [테이블명] : 같은 테이블이 있을 때 삭제
+-- delimiter // ; : 문장의 끝을 다른 기호로 표시할 때 사용
+-- create trigger [트리거명] after | before 이벤트 on [테이블명]
+-- for each row
+-- begin 
+-- [실행구문작성;] 실행구문 쿼리는 ;로 끝. 전체 트리거의 끝은 앞 설정한대로 // 
+-- 변수선언
+-- declare 변수명 자료형 기본값;	-> 변수를 선언
+-- set 선언한 변수명에 실제 값 설정 -> setter 같은 역할
+-- new : 이벤트가 발생한 행의 최신 데이터
+-- old : 이벤트가 발생한 행의 이전 데이터 (insert 같은 경우 old가 없음)
+-- end //
+-- delimiter ; 원래대로 변경 
+
+
+
+ create table buy (num int auto_increment primary key,customer varchar(20),product_name varchar(20),price int,amount int,buy_date timestamp default current_timestamp);
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from buy;
+Empty set (0.00 sec)
+
+mysql> desc buy;
++--------------+-------------+------+-----+-------------------+-------------------+
+| Field        | Type        | Null | Key | Default           | Extra             |
++--------------+-------------+------+-----+-------------------+-------------------+
+| num          | int         | NO   | PRI | NULL              | auto_increment    |
+| customer     | varchar(20) | YES  |     | NULL              |                   |
+| product_name | varchar(20) | YES  |     | NULL              |                   |
+| price        | int         | YES  |     | NULL              |                   |
+| amount       | int         | YES  |     | NULL              |                   |
+| buy_date     | timestamp   | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
++--------------+-------------+------+-----+-------------------+-------------------+
+6 rows in set (0.00 sec)
+
+mysql> insert into buy(customer, product_name, price, amount)values('hong','11111',15000,3);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from buy;
++-----+----------+--------------+-------+--------+---------------------+
+| num | customer | product_name | price | amount | buy_date            |
++-----+----------+--------------+-------+--------+---------------------+
+|   1 | hong     | 11111        | 15000 |      3 | 2022-10-14 17:44:36 |
++-----+----------+--------------+-------+--------+---------------------+
+1 row in set (0.00 sec)
+
+insert into buy(customer, product_name, price, amount)
+ select 'hong', name, price,2 from product where name = '에어나시';
+
+
+ select * from buy;
++-----+----------+--------------+-------+--------+---------------------+
+| num | customer | product_name | price | amount | buy_date            |
++-----+----------+--------------+-------+--------+---------------------+
+|   1 | hong     | 11111        | 15000 |      3 | 2022-10-14 17:44:36 |
+|   2 | hong     | 에어나시     |  9000 |      2 | 2022-10-14 17:51:03 |
++-----+----------+--------------+-------+--------+---------------------+
+2 rows in set (0.00 sec)
+
+
+/**/
+-- buy 테이블에 값이 생성되면 product 테이블에 amount, sale_amount가 변동 되는 트리거 만들기
+
+
+
+delimiter //
+create trigger insert_buy after insert on buy 
+for each row
+begin
+-- 실행구문영역
+-- new : buy 테이블에 insert 되는 값
+-- old : 수정시, 원래있던(수정전) 데이터 값 
+declare 
+
+end//
+delimiter ; -- 꼭 ;붙여줘야함
+
+SELECT * FROM example.buy;
+-- buy 테이블에 값이 생성되면 product 테이블에 amount, sale_amount가 변동 되는 트리거 만들기
+/*실행구문영역*/
+/* new : buy 테이블에 insert 되는 값*/
+/* old : 수정시 원래있던(수정전) 데이터 값 */
+
+drop trigger if exists insert_buy; 
+
+delimiter //
+create trigger insert_buy after insert on buy 
+for each row
+begin
+declare _amount int default 0;
+set _amount = new.amount;
+update product set amount = amount - _amount,
+sale_amount = sale_amount + _amount
+where name = new.product_name;
+end//
+delimiter ;   -- 꼭 ;붙여줘야함
+select * from product;
+insert into buy(customer,product_name,price,amount)
+values('hong','에어나시',9000,5);
+
+-- 실습예제
+-- buy 라는 테이블 생성
+-- num (auto_increment , PK), customer(손님), product_name(상품명) , price (단가), amount(수량), buy_date(구매일. default값으로 오늘날짜. timestamp)
+
+create table buy 
+(num int auto_increment primary key,
+customer varchar(20),
+product_name varchar(20),
+price int,
+amount int,
+buy_date timestamp default current_timestamp
+);
+ 
+select * from buy;
+desc buy;
+
+-- num , buy_date는 지정안해줘도 ok!!
+insert into buy(customer, product_name, price, amount)
+values('hong','11111',15000,3);
+ 
+ select * from buy;
+ 
+ -- value로 값 입력이 아니라 타 테이블 값을 가져오는 것도 가능
+ insert into buy(customer, product_name, price, amount)
+ select 'hong', name, price,2 from product where name = '에어나시';
+ 
+ select * from buy;
+

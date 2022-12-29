@@ -1,0 +1,17 @@
+/* 기초 전기를 듣는 학생들만 검색 ( 학번 이름 전공 )*/ 
+select std_num, std_name, std_major from student join attend on std_num = at_st_num
+join course on at_co_code = co_code
+where co_name ='기초전기';
+
+
+/* 2020년 신입생들의 평균 이수학점 */
+select round(avg(std_com_point),1) as '2020 신입생들의 평균 이수학점' from student where std_term = 1;
+select round(avg(std_com_point),1) as '2020 신입생들의 평균 이수학점' from student where substring(std_num, 1,4)= '2020';
+select round(avg(std_com_point),1) as '2020 신입생들의 평균 이수학점' from student where left(std_num, 4)= '2020';
+
+
+/* 기초전기 이순신 교수 강의를 듣는 학생의 이름을 출력 - 오름차순 정렬 */
+
+select std_name from student join attend on std_num = at_st_num
+join course on at_co_code = co_code
+where co_name ='기초전기' and co_professor='이순신' order by std_name; 

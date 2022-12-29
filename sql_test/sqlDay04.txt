@@ -1,0 +1,384 @@
+/* buy 테이블의 값이 삭제되면 product 테이블의 amount, sale_amount 값이 변경되는 트리거를 작성하시오 */
+
+/* 변수 사용 규칙
+- @변수명 : 일반 구문에서 사용가능 (선언 + 값대입, 전역변수처럼 사용)
+- 트리거나 프로시저(함수) 안에서 변수를 선언할 때는 declare를 사용하여 선언한 후 변수사용 (지역변수 개념)
+- 트리거나 프로시저 안에서의 변수는 전역변수(@변수명) 사용할 수 없음. 
+- 트리거나 프로시저(함수) 안에서는 일반값으로 변수 사용 (칼럼명과 구분하기 위해 _변수명 형식을 변수명으로 사용)
+*/
+
+
+
+drop trigger if exists delete_buy; 	-- 안써도됨
+delimiter //
+create trigger delete_buy after delete on buy for each row
+
+begin
+
+end//
+delimiter ;
+
+위에가 기본 구조
+
+begin
+declare _amount int default 0; -- 변수사용
+set _amount = old.amount;
+update product set amount = amount + _amount,
+sale_amount = sale_amount - _amount
+where name = new.product_name;
+end//
+
+실행구문을 이렇게 
+
+
+그래서 최종 
+drop trigger if exists delete_buy; 	
+delimiter //
+create trigger delete_buy after delete on buy for each row
+
+begin
+declare _amount int default 0; -- 변수사용
+set _amount = old.amount;
+update product set amount = amount + _amount,
+sale_amount = sale_amount - _amount
+where name = old.product_name;
+end//
+delimiter ;   
+select * from product;
+select * from buy;
+
+delete from buy where num = 15
+
+========
+
+-- 프로시져 (procedure) : 함수 (메소드 개념) - 쿼리의 집합
+-- 일련의 쿼리를 마치 하나의 함수처럼 실행하기 위한 쿼리의 집합
+-- 장점 : 한번의 sql 구문으로 기능을 처리할 수 있음. 시간이 단축, 유지보수에 좋음
+-- 단점 : 처리성능, 재사용성 면에서 좋지않음
+-- show procedure status;
+
+/* 
+delimiter//
+create procedure 프로시저명 (in 매개변수(in_변수명), 리턴타입(in_mode) 1: 값이 있을경우, 0 : 값이 없을 경우)
+begin 
+쿼리문 실행;
+end//
+delimeter ;
+
+call 프로시저명 (매개변수 값);
+*/
+
+-- buy 테이블에서 custom 이름을 표시
+-- (product_name을 주고, 그 물품을 구매한 사람을 표시)
+
+select *from buy;
+select distinct customer from buy where product_name="에어나시";
+
+drop procedure if exists select_buy;
+delimiter //
+create procedure select_buy
+(
+in in_name varchar(20)
+)
+begin 
+
+select distinct customer from buy where product_name = in_name;  // in은 안써도 됨. 의미상 쓰는 것 뿐
+end//
+delimiter ;
+
+call select_buy('에어나시');	//프로지서는 call 해야 값을 입력받음
+show procedure status;
+
+==========================
+
+-- procedure_name : insert_buy
+-- buy table insert하는 procedure 만들기 customer, product_name, price, amount
+
+delimiter //
+create procedure insert_buy
+(
+in in_customer varchar(20),
+in_pname varchar(20),
+in_price int,
+in_amount int
+)
+
+begin 
+insert into buy (customer, pname, price, amount) 
+values (in_customer, in_pname, in_price, in_amount);
+
+end//
+delimiter ;
+
+call insert_buy('kim','롱 패딩 점퍼',47400,10);
+
+-- select price into 변수명 from product where name = '롱 패딩 점퍼'; 검색한 값을 변수명에 저장해라
+-- 이렇게 하면 위에 values에 따로 값 적지 않아도 됨
+
+
+
+select * from buy;
+select * from product;
+
+show procedure status;
+
+======================
+-- select into 로 값 추가하기
+
+drop procedure insert_buy1;
+
+delimiter //
+create procedure insert_buy1
+(
+in in_customer varchar(20),
+in_pname varchar(20),
+in_amount int
+)
+
+begin 
+declare _price int;
+select price into _price
+-- select price , 값 into _price , 다른 변수명   <=여러변수일 경우
+from product where name = in_pname;
+insert into buy (customer, product_name, price, amount) 
+values (in_customer, in_pname, _price, in_amount);
+
+end//
+delimiter ;
+
+call insert_buy1('lee','롱 패딩 점퍼',30);
+
+show procedure status;
+select * from buy;
+select * from product;
+
+
+-- select price into 변수명 from product where name = '롱 패딩 점퍼'; 검색한 값을 변수명에 저장해라
+-- 이렇게 하면 위에 values에 따로 값 적지 않아도 됨
+
+=================
+
+
+-- view 생성 (가상테이블)
+-- creat view 테이블명 (필드명) 
+-- as (view의 내용 보통 select많이 사용)
+select * from buy;
+
+-- view 생성
+create view customer_hong as 
+select * from buy where customer = 'hong';
+
+-- view 내용 확인
+select * from customer_hong;
+
+
+-- 재시험자 view 생성 재시험자 명단 (학번으로)
+create view score_F as 
+select at_st_num as '재시험자 학번'from attend where at_repetition = 'y';
+select * from score_F;
+
+-- 재시험자 view 생성 재시험자 명단 (이름으로)
+create view score_F1 as
+select std_name '재시험자 이름' from student
+join attend on at_st_num = std_num
+where at_score = 'F';
+
+select * from score_F1;
+
+
+
+==============
+school_exam 만들기
+
+create table student(
+st_num int not null ,
+st_name varchar(20) not null,
+st_term int not null default 0,
+st_point int not null default 0,
+primary key(st_num));
+
+insert into student (st_num,st_name,st_term)
+values
+(2020123001,'김영철',2),
+(2020123002,'나영희',2),
+(2020160001,'강철수',2),
+(2020160002,'박철수',2),
+(2020456001,'강군',2);
+
+create table course (
+co_num int not null auto_increment,
+co_pr_num int not null,
+co_sub_num int not null,
+co_term varchar(10) not null default 1, 
+co_year int not null,
+co_timetable varchar(100) not null,
+primary key(co_num));
+
+insert into course (co_pr_num,co_sub_num,co_term,co_year,co_timetable)
+values
+(2005789001,1,1,2022,'월2a/2b/3a/3b/4a/4b'),
+(2005789001,1,2,2022,'월2a/2b/3a/3b/4a/4b'),
+(2010160001,2,1,2022,'화1a/1b/2a/2b'),
+(2010160001,3,1,2022,'목2a/2b/3a/3b/4a/4b'),
+(2011123001,4,2,2022,'화1a/1b/2a/2b'),
+(2011123001,5,2,2022,'수1a/1b/2a/2b');
+
+
+create table attend (
+at_num int not null,
+at_st_num int not null,
+at_co_num int not null,
+at_mid int not null default 0,
+at_fin int not null default 0,
+at_attend int not null default 0,
+at_homework int not null default 0,
+at_score varchar(45) default 'n',
+at_pass varchar(1) default 'n',
+at_repetition varchar(1) default 'n',
+primary key(at_num));
+
+insert into attend (at_num,at_st_num,at_co_num)
+values 
+(1,2020123001,1),
+(2,2020123001,2),
+(3,2020123001,3),
+(4,2020123001,5),
+(5,2020123002,2),
+(6,2020123002,4),
+(7,2020123002,6),
+(8,2020160001,1),
+(9,2020160001,3),
+(10,2020160001,6),
+(11,2020160002,2),
+(12,2020160002,4),
+(13,2020160002,5),
+(14,2020456001,1),
+(15,2020456001,3),
+(16,2020456001,4),
+(17,2020456001,6),
+(18,2020123001,1),
+(19,2020160001,4),
+(20,2020160001,2),
+(21,2020160002,4),
+(22,2020456001,5),
+(23,2020160001,6),
+(24,2020160002,1),
+(25,2020160002,1),
+(26,2020123001,5),
+(27,2020123001,4);
+
+create table subject (
+sub_num int not null auto_increment,
+sub_code varchar(20) not null,
+sub_title varchar(45) not null,
+sub_point int not null default 0,
+sub_time int not null default 0,
+primary key(sub_num));
+
+insert into subject (sub_code,sub_title,sub_point,sub_time)
+values
+('msc001','대학수학',3,3),
+('com001','컴퓨터개론',2,2),
+('com002','운영체제',3,3),
+('acb001','글쓰기',2,2),
+('abc002','영어1',2,3);
+
+
+create table professor (
+pr_num int not null,
+pr_name varchar(20) not null,
+pr_age int not null,
+pr_room varchar(45) not null,
+pr_state varchar(45) not null default '재직',
+pr_position varchar(45) not null default '조교수',
+primary key (pr_num));
+
+insert into professor (pr_num,pr_name,pr_age,pr_room,pr_state,pr_position)
+values
+(2005789001,'홍길동',60,'B동302호','재직','정교수'),
+(2006456001,'박영실',60,'B동301호','안식년','정교수'),
+(2010160001,'강길동',55,'A동202호','재직','정교수'),
+(2011123001,'이순신',55,'A동203호','재직','정교수');
+
+create table guide (
+gu_num int not null auto_increment,
+gu_pr_num int not null,
+gu_st_num int not null,
+gu_year varchar(45) default null,
+primary key (gu_num));
+
+insert into guide (gu_pr_num,gu_st_num,gu_year)
+values
+(2010160001,2020160001,2020),
+(2010160001,2020160002,2020),
+(2011123001,2020123001,2020),
+(2011123001,2020123002,2020),
+(2006456001,2020456001,2020);
+
+alter table attend add foreign key (at_st_num) references student (st_num);
+alter table attend add foreign key (at_co_num) references course (co_num);
+alter table course add foreign key (co_pr_num) references professor (pr_num);
+alter table course add foreign key (co_sub_num) references subject (sub_num);
+alter table guide add foreign key (gu_pr_num) references professor (pr_num);
+alter table guide add foreign key (gu_st_num) references student (st_num);
+
+
+select * from student;
+select * from course;
+select * from attend;
+select * from subject;
+select * from professor;
+select * from guide;
+
+
+========221019 예제
+
+-- 1. 2022년도 1학기 '대학수학'의 수강자 명단 출력
+
+select distinct st_name as '대학수학 수강자 명단' from student 
+join attend on st_num = at_st_num
+join course on at_co_num = co_num
+join subject on co_sub_num = sub_num 
+where co_year = 2022 and co_term = 1 and sub_title = '대학수학' order by st_name;
+-- group by 로 중복제거 하고 정렬해도 됨!!
+
+
+-- 2. 전체 수강자 명단 학번, 이름 출력 (중복없이)
+
+select distinct st_num '학번', st_name '이름' from student
+join attend on st_num = at_st_num
+join course on at_co_num = co_num
+join subject on co_sub_num = sub_num group by st_num;
+-- group by 는 한 변수만 써줘도 된다 group by st_num,st_name; 이렇게 안써도 됨
+
+
+-- 3. 2020123001(김영철) 학생이 수강하는 강의번호 출력
+-- 4. 2020123001(김영철) 학생이 수강하는 강의명 출력
+
+select distinct sub_code, sub_title from subject 
+join course on sub_num = co_sub_num
+join attend on co_num = at_co_num
+join student on at_st_num = st_num
+where st_name = '김영철';
+
+
+
+-- 5. 2020123001(김영철) 학생이 2022 2학기에 수강하는 강의시간표 출력
+-- 6. 2020123001(김영철) 학생이 2022 2학기에 수강하는 과목명 출력
+
+select distinct co_timetable, sub_title from subject 
+join course on sub_num = co_sub_num
+join attend on co_num = at_co_num
+join student on at_st_num = st_num
+where st_name = '김영철' and co_year =2022 and co_term =2;
+
+
+-- 7. 2010160001(강길동) 교수님이 지도하는 학생의 학번 출력
+-- 8. 2010160001(강길동) 교수님이 지도하는 학생의 이름 출력
+
+select distinct st_num, st_name from student
+join guide on st_num = gu_st_num
+join professor on gu_pr_num = pr_num
+where pr_name = '강길동';
+
+

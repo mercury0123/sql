@@ -1,0 +1,668 @@
+DB는 대소문자 구분x
+
+create DB 명;
+open  DB 명;
+
+
+필드의 제약조건 >
+
+NN : Nou Null, 데이터의 값으로 null을 줄 수 없게 막아주는 역할.
+UQ : Unique, 값이 중복될 수 없음. ex) 주민번호, 학번 등 
+AI : Auto Increment, 자동증가 (정수 속성만 체크가능) 
+PK : Primary Key, 기본키!! (중복x null x)
+
+B : Binary, 2진값일 경우 체크
+UN : 항상 값이 0보다 크거나 같게
+ZF : 숫자 앞에 0으로 채울것인가?
+G : 속성 자동생성
+
+
+문자열 자료형 >
+
+CHAR(size) : 최대 size개의 문자열을 저장, 길이 고정
+VARCHAR(size) : 최대 size개의 문자열을 저장, 가변길이
+TINYTEXT : 최대255자 
+TEXT : SIZE개의 문자를 저장. 최대 65,535자 
+MEDIUMTEXT : 최대 16,777,215자
+LONGTEXT : 최대 4,294,767,295자
+
+숫자 자료형 >
+
+INT : 정수 - 2,147,483,648 ~ 2,147,483,647 
+BIGINT(size) : 엄청 김
+DOUBLE : 실수
+BOOL : 참/거짓, 1/0
+
+DATE : 날짜
+DATETIME : 날짜+시간
+TIME : 시간
+YEAR : 년도
+
+============================================
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sakila             |
+| sys                |
+| test               |
+| world              |
++--------------------+
+7 rows in set (0.00 sec)
+
+
+
+mysql> select * from test;			//DB 선택 안되었으므로
+ERROR 1046 (3D000): No database selected
+
+
+mysql> use test;				//DB 불러오기
+Database changed
+mysql> select * from test1;
++-----+--------+-------+
+| num | name   | phone |
++-----+--------+-------+
+|   1 | 영희   | 1111  |
+|   2 | 순이   | 2222  |
+|   3 | 영철   | 333   |
++-----+--------+-------+
+3 rows in set (0.00 sec)
+
+mysql> desc test1;				//테이블 구조 보기
++-------+-------------+------+-----+---------+----------------+
+| Field | Type        | Null | Key | Default | Extra          |
++-------+-------------+------+-----+---------+----------------+
+| num   | int         | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(45) | NO   |     | NULL    |                |
+| phone | varchar(45) | YES  |     | NULL    |                |
++-------+-------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> select * name from test1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'name from test1' at line 1
+mysql> select name from test1;
++--------+
+| name   |
++--------+
+| 영희   |
+| 순이   |
+| 영철   |
++--------+
+3 rows in set (0.00 sec)
+
+mysql>
+
+//위 아래 방향키로 지난 명령어 불러오기 가능
+
+==========================
+ create table test2(
+num int not null ,
+name char(10) not null,
+dep varchar(20),
+addr varchar(20),
+tel varchar(20),
+primary key(num));
+Query OK, 0 rows affected (0.01 sec)
+
+ desc test2;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| num   | int         | NO   | PRI | NULL    |       |
+| name  | char(10)    | NO   |     | NULL    |       |
+| dep   | varchar(20) | YES  |     | NULL    |       |
+| addr  | varchar(20) | YES  |     | NULL    |       |
+| tel   | varchar(20) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> insert into test2(num,name,dep,addr,tel)
+values(1,'Hong', 'com', 'seoul','1111');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select *from test2
+    -> select *from test2;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'select *from test2' at line 2
+mysql> select *from test2;
++-----+------+------+-------+------+
+| num | name | dep  | addr  | tel  |
++-----+------+------+-------+------+
+|   1 | Hong | com  | seoul | 1111 |
++-----+------+------+-------+------+
+1 row in set (0.00 sec)
+
+mysql> desc test2;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| num   | int         | NO   | PRI | NULL    |       |
+| name  | char(10)    | NO   |     | NULL    |       |
+| dep   | varchar(20) | YES  |     | NULL    |       |
+| addr  | varchar(20) | YES  |     | NULL    |       |
+| tel   | varchar(20) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> insert into test2(num,name,dep,addr,tel)
+    values(1,'Hong', 'com', 'seoul','1111');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select *from test2
+    -> select *from test2;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'select *from test2' at line 2
+mysql> select *from test2;
++-----+------+------+-------+------+
+| num | name | dep  | addr  | tel  |
++-----+------+------+-------+------+
+|   1 | Hong | com  | seoul | 1111 |
++-----+------+------+-------+------+
+1 row in set (0.00 sec)
+
+mysql>
+
+
+ desc test2;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| num   | int         | NO   | PRI | NULL    |       |
+| name  | char(10)    | NO   |     | NULL    |       |
+| dep   | varchar(20) | YES  |     | NULL    |       |
+| addr  | varchar(20) | YES  |     | NULL    |       |
+| tel   | varchar(20) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> insert into test2(num,name,dep,addr,tel)
+    -> values(1,'Hong', 'com', 'seoul','1111');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select *from test2
+    -> select *from test2;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'select *from test2' at line 2
+mysql> select *from test2;
++-----+------+------+-------+------+
+| num | name | dep  | addr  | tel  |
++-----+------+------+-------+------+
+|   1 | Hong | com  | seoul | 1111 |
++-----+------+------+-------+------+
+1 row in set (0.00 sec)
+
+mysql>
+
+
+mysql> show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| test1          |
+| test2          |
++----------------+
+2 rows in set (0.00 sec)
+
+mysql> select * from test2;
++-----+-------+------+---------+------+
+| num | name  | dep  | addr    | tel  |
++-----+-------+------+---------+------+
+|   1 | Hong  | com  | seoul   | 1111 |
+|   5 | Hong2 | kor  | incheon | 5555 |
++-----+-------+------+---------+------+
+2 rows in set (0.00 sec)
+
+mysql> insert into test2(num,name,dep,addr,tel)
+    -> values(3,'Kim', 'com', 'pusan','3333');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into test2(num,name,dep,addr,tel)
+    -> values(1,'Kang', 'kor', 'gwangju','4444');
+ERROR 1062 (23000): Duplicate entry '1' for key 'test2.PRIMARY'
+mysql> insert into test2(num,name,dep,addr,tel)
+    -> values(2,'Hong', 'com', 'seoul','1212');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| test1          |
+| test2          |
++----------------+
+
+
+
+2 rows in set (0.00 sec)
+
+mysql> select * from test2;
++-----+-------+------+---------+------+
+| num | name  | dep  | addr    | tel  |
++-----+-------+------+---------+------+
+|   1 | Hong  | com  | seoul   | 1111 |
+|   2 | Hong  | com  | seoul   | 1212 |
+|   3 | Kim   | com  | pusan   | 3333 |
+|   5 | Hong2 | kor  | incheon | 5555 |
++-----+-------+------+---------+------+
+4 rows in set (0.00 sec)
+
+mysql> select name, num from test2 where addr ='seoul';
++------+-----+
+| name | num |
++------+-----+
+| Hong |   1 |
+| Hong |   2 |
++------+-----+
+2 rows in set (0.00 sec)
+
+
+/as 붙여서 검색
+mysql> select num as '번호' , name as '이름' from test2
+    -> where addr='seoul';
++------+------+
+| 번호 | 이름 |
++------+------+
+|    1 | Hong |
+|    2 | Hong |
++------+------+
+2 rows in set (0.00 sec)
+
+
+칼럼변경 >>
+alter table 테이블명 change column 대상 변경 속성;
+
+add 추가 drop 삭제 modify 변경
+ alter table student change column tel score int;
+
+ alter table student change num num int not null auto_increment;
+이런식으로 num의 속성을 추가로 AI로 변경도 가능
+
+alter tavle student modify num int not null ;
+그냥 이렇게 변경하는게 더 편함
+
+외래키 지정>>
+alter table 테이블명 add foreign key 칼럼명 references 테이블명 칼럼명 옵션;
+
+옵션)
+on delete cascade - 참조테이블의 값이 삭제되면 나도 삭제
+on update cascade - 참조테이블의 값이 갱신되면 나도 갱신
+
+
+값 변경>>
+update 테이블명 set 바꿀칼럼 = 바꿀값
+where num = 바꿀 대상 번호;
+
+update student set num = 80; where num = 2; 
+
+
+값 삭제 >>
+del
+
+
+
+/*seoul 사는 친구들의 이름과 점수만 출력*/
+
+select name, num from test2 where addr ='seoul';
+
+
+/*seoul 사는 친구들의 이름과 점수만 출력*/
+mysql> select name, score from student where addr = 'seoul';
++------+-------+
+| name | score |
++------+-------+
+| Hong |    60 |
+| Cha  |    90 |
+| Jung |    90 |
+| Yuk  |    85 |
++------+-------+
+4 rows in set (0.00 sec)
+
+mysql>
+
+select * from student where score between 80 and 90;
++-----+------+------+---------+-------+
+| num | name | dep  | addr    | score |
++-----+------+------+---------+-------+
+|   2 | Kang | Kor  | Mokop   |    85 |
+|   3 | Pinu | math | Busan   |    80 |
+|   4 | Cha  | Eng  | seoul   |    90 |
+|   6 | Jung | Kor  | seoul   |    90 |
+|   7 | Leeg | com  | Incheon |    85 |
+|   8 | Lim  | com  | incheon |    90 |
+|   9 | Yuk  | com  | seoul   |    85 |
+|  10 | Kim  | Eng  | incheon |    90 |
++-----+------+------+---------+-------+
+8 rows in set (0.00 sec)
+
+mysql> select * from student where score >= 80;
++-----+------+------+---------+-------+
+| num | name | dep  | addr    | score |
++-----+------+------+---------+-------+
+|   2 | Kang | Kor  | Mokop   |    85 |
+|   3 | Pinu | math | Busan   |    80 |
+|   4 | Cha  | Eng  | seoul   |    90 |
+|   6 | Jung | Kor  | seoul   |    90 |
+|   7 | Leeg | com  | Incheon |    85 |
+|   8 | Lim  | com  | incheon |    90 |
+|   9 | Yuk  | com  | seoul   |    85 |
+|  10 | Kim  | Eng  | incheon |    90 |
++-----+------+------+---------+-------+
+8 rows in set (0.00 sec)
+
+
+
+ select * from student where dep ='kor' or dep ='eng';
++-----+------+------+---------+-------+
+| num | name | dep  | addr    | score |
++-----+------+------+---------+-------+
+|   2 | Kang | Kor  | Mokop   |    85 |
+|   4 | Cha  | Eng  | seoul   |    90 |
+|   6 | Jung | Kor  | seoul   |    90 |
+|  10 | Kim  | Eng  | incheon |    90 |
++-----+------+------+---------+-------+
+4 rows in set (0.00 sec)
+
+
+
+/* in () : 괄호안의 값중 하나를 선택  = or 의미 */
+ select * from student where dep in ('kor','eng');
++-----+------+------+---------+-------+
+| num | name | dep  | addr    | score |
++-----+------+------+---------+-------+
+|   2 | Kang | Kor  | Mokop   |    85 |
+|   4 | Cha  | Eng  | seoul   |    90 |
+|   6 | Jung | Kor  | seoul   |    90 |
+|  10 | Kim  | Eng  | incheon |    90 |
++-----+------+------+---------+-------+
+4 rows in set (0.00 sec)
+
+/*addr의 내용을 중복되지 않게  출력*/
+
+ select distinct addr from student;
++---------+
+| addr    |
++---------+
+| seoul   |
+| Mokop   |
+| Busan   |
+| Incheon |
++---------+
+4 rows in set (0.00 sec)
+
+/*k로 시작하는 사람만 출력 */
+select * from student where name like 'k%';
++-----+------+------+---------+-------+
+| num | name | dep  | addr    | score |
++-----+------+------+---------+-------+
+|   2 | Kang | Kor  | Mokop   |    85 |
+|  10 | Kim  | Eng  | incheon |    90 |
++-----+------+------+---------+-------+
+2 rows in set (0.00 sec)
+
+'%k' 뒤에 k 가 들어가는경우
+'%k%' 어디든 k가 들어가는 경우
+
+/* >= <= >< = <>*/
+
+주소가 서울이 아닌 사람만 출력
+ select * from student where addr <> 'seoul';
++-----+------+------+---------+-------+
+| num | name | dep  | addr    | score |
++-----+------+------+---------+-------+
+|   2 | Kang | Kor  | Mokop   |    85 |
+|   3 | Pinu | math | Busan   |    80 |
+|   5 | Song | com  | Incheon |    70 |
+|   7 | Leeg | com  | Incheon |    85 |
+|   8 | Lim  | com  | incheon |    90 |
+|  10 | Kim  | Eng  | incheon |    90 |
++-----+------+------+---------+-------+
+6 rows in set (0.00 sec)
+
+/* dep 가 com 이고 addr가 incheon 인 사람 출력*/
+
+ select * from student where dep = 'com' and addr = 'incheon';
++-----+------+------+---------+-------+
+| num | name | dep  | addr    | score |
++-----+------+------+---------+-------+
+|   5 | Song | com  | Incheon |    70 |
+|   7 | Leeg | com  | Incheon |    85 |
+|   8 | Lim  | com  | incheon |    90 |
++-----+------+------+---------+-------+
+3 rows in set (0.00 sec)
+
+
+집약과 정렬>
+
+집약 : 열의 합계나 개수, 평균 등의 집계를 구하기 위한 함수를 집약함수
+
+count : 행의 개수 
+sum : 합계 
+avg : 평균
+max : 최대값
+min : 최소값
+
+-----------------------------------
+Group by : 속성을 그룹으로 나눔
+Having : 그룹에 대한 조건
+
+select 필드명1, 필드명2 from 테이블 명
+where 조건
+group by 그룹명 having 조건;
+-----------------------------------
+
+----------------------------------------------------------
+Order by : 정렬 asc(생략가능. 필드명만주면 기본 오름차순 디폴트값)  -> 오름차순 , desc -> 내림차순
+(문장 가장 끝에 적어줌)
+복수개의 키를 지정할수 있음 (2차 3차 정렬도 가능)
+
+select 필드명1, 필드명2 from 테이블명
+where 조건
+order by 필드명1 정렬기준, 필드명2 정렬기준;
+----------------------------------------------------------
+
+select count(*) from student;
++----------+
+| count(*) |
++----------+
+|       10 |
++----------+
+1 row in set (0.00 sec)
+
+ select count(*) as '인원수' from student;
++--------+
+| 인원수 |
++--------+
+|     10 |
++--------+
+1 row in set (0.00 sec)
+
+select count(num) from student;
++------------+
+| count(num) |
++------------+
+|         10 |
++------------+
+1 row in set (0.00 sec)
+
+/* 서울에 사는 사람은 몇명? */
+
+ select count(num) from student where addr ='seoul';
++------------+
+| count(num) |
++------------+
+|          4 |
++------------+
+1 row in set (0.00 sec)
+
+서울 사는 사람의 총점
+ select sum(score) from student where addr ='seoul';
++------------+
+| sum(score) |
++------------+
+|        325 |
++------------+
+1 row in set (0.00 sec)
+
+서울 사는 사람의 평균
+
+mysql> select avg(score) from student where addr ='seoul';
++------------+
+| avg(score) |
++------------+
+|    81.2500 |
++------------+
+1 row in set (0.00 sec)
+
+반올림
+select round(avg(score),1) from student where addr ='seoul';
++---------------------+
+| round(avg(score),1) |
++---------------------+
+|                81.3 |
++---------------------+
+1 row in set (0.00 sec)
+
+중복제거 dep 출력
+select distinct dep from student;
++------+
+| dep  |
++------+
+| com  |
+| Kor  |
+| math |
+| Eng  |
++------+
+4 rows in set (0.00 sec)
+
+중복제거 dep의 개수는?
+
+select count(distinct dep) from student;
++---------------------+
+| count(distinct dep) |
++---------------------+
+|                   4 |
++---------------------+
+1 row in set (0.00 sec)
+
+
+과목별 인원수 출력
+select dep, count(dep) from student group by dep;
++------+------------+
+| dep  | count(dep) |
++------+------------+
+| com  |          5 |
+| Kor  |          2 |
+| math |          1 |
+| Eng  |          2 |
++------+------------+
+4 rows in set (0.00 sec)
+
+
+과목별 인원수 + 그중 kor eng 만 출력
+select dep, count(dep) from student
+    -> group by dep
+    -> having dep in ('kor','eng');
++------+------------+
+| dep  | count(dep) |
++------+------------+
+| Kor  |          2 |
+| Eng  |          2 |
++------+------------+
+2 rows in set (0.00 sec)
+
+
+/* 지역별 인원수와 점수의 합계를 출력*/
+ select addr, count(addr), sum(score) from student group by addr;
++---------+-------------+------------+
+| addr    | count(addr) | sum(score) |
++---------+-------------+------------+
+| seoul   |           4 |        325 |
+| Mokop   |           1 |         85 |
+| Busan   |           1 |         80 |
+| Incheon |           4 |        335 |
++---------+-------------+------------+
+4 rows in set (0.00 sec)
+
+
+/* 지역별 인원수와 점수의 평균을 출력*/
+  select addr, count(addr), round(avg(score),1) from student group by addr;
++---------+-------------+---------------------+
+| addr    | count(addr) | round(avg(score),1) |
++---------+-------------+---------------------+
+| seoul   |           4 |                81.3 |
+| Mokop   |           1 |                85.0 |
+| Busan   |           1 |                80.0 |
+| Incheon |           4 |                83.8 |
++---------+-------------+---------------------+
+4 rows in set (0.00 sec)
+
+
+/* 점수의 최대값, 최소값 출력*/
+
+select max(score), min(score) from student;
++------------+------------+
+| max(score) | min(score) |
++------------+------------+
+|         90 |         60 |
++------------+------------+
+1 row in set (0.00 sec)
+
+
+
+select name, if(score>80, 'good', 'fail') as '등급' from student;
++------+------+
+| name | 등급 |
++------+------+
+| Hong | fail |
+| Kang | good |
+| Pinu | fail |
+| Cha  | good |
+| Song | fail |
+| Jung | good |
+| Leeg | good |
+| Lim  | good |
+| Yuk  | good |
+| Kim  | good |
++------+------+
+
+
+select name, score from student
+    -> where score = (select max(score) from student);
++------+-------+
+| name | score |
++------+-------+
+| Cha  |    90 |
+| Jung |    90 |
+| Lim  |    90 |
+| Kim  |    90 |
++------+-------+
+
+
+create table product(
+    -> num int not null auto_increment,
+    -> type_a varchar(20),
+    -> type_b varchar(20),
+    -> name varchar(20) not null,
+    -> price int,
+    -> amount int,
+    -> sale_amount int ,
+    -> register_date date,
+    -> primary key(num));
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> desc product;
++---------------+-------------+------+-----+---------+----------------+
+| Field         | Type        | Null | Key | Default | Extra          |
++---------------+-------------+------+-----+---------+----------------+
+| num           | int         | NO   | PRI | NULL    | auto_increment |
+| type_a        | varchar(20) | YES  |     | NULL    |                |
+| type_b        | varchar(20) | YES  |     | NULL    |                |
+| name          | varchar(20) | NO   |     | NULL    |                |
+| price         | int         | YES  |     | NULL    |                |
+| amount        | int         | YES  |     | NULL    |                |
+| sale_amount   | int         | YES  |     | NULL    |                |
+| register_date | date        | YES  |     | NULL    |                |
++---------------+-------------+------+-----+---------+----------------+
+8 rows in set (0.00 sec)
+

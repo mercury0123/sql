@@ -1,0 +1,234 @@
+sqlDay06 오라클 
+
+
+
+conn scott/tiger
+
+// alter user 계정명 identified by 비밀번호; 비번 변경
+
+select * from tab;
+
+desc emp;
+
+select * from emp;
+
+show line;
+
+set line 160;	화면 사이즈 늘리기
+
+select * from emp;
+
+
+오라클에서 사용하는 자료형
+int가 없음
+number 라는 자료형 사용 
+number(p,s)
+
+// table test num_pk, name, score
+
+create table test (
+num number primary key,
+name varchar2(10) not null,
+score number );
+
+ desc test;
+ Name                                                                                      Null?    Type
+ ----------------------------------------------------------------------------------------- -------- ------------------------------------------------------------
+ NUM                                                                                       NOT NULL NUMBER
+ NAME                                                                                      NOT NULL VARCHAR2(10)
+ SCORE
+
+// sequence 생성
+create sequence table명 
+create sequence seq_num
+start with 1		//1번부터 시작. 시작값
+increment by 1		//1씩 증가
+nominvalue		//시퀀스 시작 최소값
+nomaxvalue		//시퀀스 끝나는 최대값
+nocycle (반복안함) cycle (시퀀스 최대값에 도달했을 시, 다시 최소값 1부터 시작)
+cache			//캐시를 사용하여 속도가 빠르며 동시사용자 많을겨우
+nocache 
+order
+noorder			//요청한 순서대로 값생성 but 시스템 과부하우려
+
+
+create sequence seq_num
+  2  start with 1
+  3  increment by 1
+  4  nominvalue
+  5  nomaxvalue;
+
+Sequence created.
+
+
+select * from user_sequences;
+select * from user_sequences;
+
+SEQUENCE_NAME                                                 MIN_VALUE  MAX_VALUE INCREMENT_BY CY OR CACHE_SIZE LAST_NUMBER
+------------------------------------------------------------ ---------- ---------- ------------ -- -- ---------- -----------
+SEQ_NUM                                                               1 1.0000E+28            1 N  N          20
+           1
+
+
+=================================
+
+
+num 인크리먼트 넣어뒀지만 써줘야함
+num.nextvalue 다음값을 자동으로 넣어주세요 의미
+insert into test(num, name, score) values (seq_num.nextval,'hong',89);
+
+
+ insert into test(num, name, score)
+  2  values (seq_num.nextval,'hong',89);
+
+1 row created.
+
+SQL> insert into test(num, name, score) values (seq_num.nextval,'kim',90);
+
+1 row created.
+
+SQL> insert into test(num, name, score) values (seq_num.nextval,'lee',76);
+
+1 row created.
+
+ select * from test;
+
+       NUM NAME                      SCORE
+---------- -------------------- ----------
+         1 hong                         89
+         2 kim                          90
+         3 lee                          76
+
+select seq_num.nextval from dual;
+
+select seq_num.currval from dual;
+
+select * from dual;
+
+// dual 빈 테이블 : 임시저장소
+// grade 필드 삽입 : score에 따라 ABCDF 등급을 저장
+
+
+alter table test add grade varchar(2);
+
+update test set grade = (
+  2  case when score >=90 then 'A'
+  3  when score >=80 then 'B'
+  4  when score >=70 then 'C'
+  5  when score >=60 then 'D'
+  6  else 'F' end);
+
+3 rows updated.
+
+ select * from test;
+
+       NUM NAME                      SCORE GRAD
+---------- -------------------- ---------- ----
+         1 hong                         89 B
+         2 kim                           90 A
+         3 lee                            76 C
+
+select sum(score) from test;
+
+SUM(SCORE)
+----------
+       255
+
+// ||연산자
+select name || 'is' || score|| 'score' from test;
+
+NAME||'IS'||SCORE||'SCORE'
+------------------------------------------------------------------------------------------------------------------
+hongis89score
+kimis90score
+leeis76score
+
+select name , 'is' , score from test;
+NAME                 'IS'      SCORE
+-------------------- ---- ----------
+hong                 is           89
+kim                  is           90
+lee                  is           76
+
+
+ select * from test where name = 'hong';
+
+       NUM NAME                      SCORE GRAD
+---------- -------------------- ---------- ----
+         1 hong                         89 B
+
+
+ select * from test where name = 'Hong';
+
+no rows selected
+
+-- 오라클은 대소문자 구별 !!
+
+================================
+
+-- 오라클 다중 insert 
+
+insert all / union all 
+
+insert into table (칼럼1, 칼럼2)
+select value1, value2, ... from dual union all
+select value1, value2, ... from dual union all
+...
+select value1, value2, ... from dual;
+
+-- 시퀀스를 사용할 수는 없음
+-- 트리거를 사용하여 삽입될 때 자동으로 1씩 증가시켜라
+
+-- 테스트 테이블을 만들기
+테이블 명 test_insert
+id : number, primary key
+name : varchar2(10)
+address : varchar2(10)
+시퀀스 생성 seq_test_insert
+트리거 만들기 tr_test_insert
+(insert 하기전에 시퀀스 증가)
+데이터 삽입
+
+오라클은 트리거 생성시 델리미터 설정이 없음
+
+//트리거 생성
+create trigger tr_test_insert
+before insert on test_insert
+for each row
+begin
+select seq_test_insert.nextval into :new.id from dual; 	-- 문법 주의!!
+end;
+/	-- 문법 주의!!	
+
+Trigger created.
+
+insert into test_insert(name,address)
+select 'aaa','seoul' from dual union all
+select 'bbb','seoul2' from dual union all
+select 'ccc','seoul3' from dual union all
+select 'ddd','seoul4' from dual;
+
+4 rows created.
+
+select * from test_insert;
+
+        ID NAME                 ADDRESS
+---------- -------------------- --------------------
+         1 aaa                  seoul
+         2 bbb                  seoul2
+         3 ccc                  seoul3
+         4 ddd                  seoul4
+
+
+=================================
+
+오라클 pl/sql 제어문 (반복 선택 조건문)
+
+
+월요일 DB 시험
+
+sql활용
+
+요구사항분석
+
+데이터 입출력

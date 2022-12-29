@@ -1,0 +1,293 @@
+DB는 대소문자 구분x
+
+create DB 명;
+open  DB 명;
+
+
+필드의 제약조건 >
+
+NN : Nou Null, 데이터의 값으로 null을 줄 수 없게 막아주는 역할.
+UQ : Unique, 값이 중복될 수 없음. ex) 주민번호, 학번 등 
+AI : Auto Increment, 자동증가 (정수 속성만 체크가능) 
+PK : Primary Key, 기본키!! (중복x null x)
+
+B : Binary, 2진값일 경우 체크
+UN : 항상 값이 0보다 크거나 같게
+ZF : 숫자 앞에 0으로 채울것인가?
+G : 속성 자동생성
+
+
+문자열 자료형 >
+
+CHAR(size) : 최대 size개의 문자열을 저장, 길이 고정
+VARCHAR(size) : 최대 size개의 문자열을 저장, 가변길이
+TINYTEXT : 최대255자 
+TEXT : SIZE개의 문자를 저장. 최대 65,535자 
+MEDIUMTEXT : 최대 16,777,215자
+LONGTEXT : 최대 4,294,767,295자
+
+숫자 자료형 >
+
+INT : 정수 - 2,147,483,648 ~ 2,147,483,647 
+BIGINT(size) : 엄청 김
+DOUBLE : 실수
+BOOL : 참/거짓, 1/0
+
+DATE : 날짜
+DATETIME : 날짜+시간
+TIME : 시간
+YEAR : 년도
+
+
+칼럼변경 >>
+alter table 테이블명 change column 대상 변경 속성;
+
+add 추가 drop 삭제 modify 변경
+ alter table student change column tel score int;
+
+ alter table student change num num int not null auto_increment;
+이런식으로 num의 속성을 추가로 AI로 변경도 가능
+
+alter table student modify num int not null auto_increment;
+그냥 이렇게 변경하는게 더 편함
+
+외래키 지정>>
+alter table 테이블명 add foreign key 칼럼명 references 테이블명 칼럼명 옵션;
+
+옵션)
+on delete cascade - 참조테이블의 값이 삭제되면 나도 삭제
+on update cascade - 참조테이블의 값이 갱신되면 나도 갱신
+
+
+값 변경>>
+update 테이블명 set 바꿀칼럼 = 바꿀값
+where num = 바꿀 대상 번호;se
+
+update student set num = 80; where num = 2; 
+
+
+값 삭제 >>
+del
+
+집약과 정렬>
+
+집약 : 열의 합계나 개수, 평균 등의 집계를 구하기 위한 함수를 집약함수
+
+count : 행의 개수 
+sum : 합계 
+avg : 평균
+max : 최대값
+min : 최소값
+
+-----------------------------------
+Group by : 속성을 그룹으로 나눔
+Having : 그룹에 대한 조건
+
+select 필드명1, 필드명2 from 테이블 명
+where 조건
+group by 그룹명 having 조건;
+-----------------------------------
+
+----------------------------------------------------------
+Order by : 정렬 asc(생략가능. 필드명만주면 기본 오름차순 디폴트값)  -> 오름차순 , desc -> 내림차순
+(문장 가장 끝에 적어줌)
+복수개의 키를 지정할수 있음 (2차 3차 정렬도 가능)
+
+select 필드명1, 필드명2 from 테이블명
+where 조건
+order by 필드명1 정렬기준, 필드명2 정렬기준;
+----------------------------------------------------------
+
+sql 내장함수
+
+-산술연산함수 
+기본 산술연산 + - * / mod(나머지) 
+mod(값1,값2) : 값1을 값2로 나눈 나머지
+round(값,소수자리수) : 반올림 - 소수위쪽으로 반올림
+format(값,소수자리수) : 천단위 구분기호 사용가능
+ceilling(값,자리수) : 올림
+floor(값,자리수) : 버림
+sqrt(값) / power(값,제곱) : 루트 / 제곱 
+rand() : 0~1사이의 난수 발생
+abs(숫자) : 절대값
+
+/* 내장함수 */
+select mod (10,3);
++------------+
+| mod (10,3) |
++------------+
+|          1 |
++------------+
+1 row in set (0.00 sec)
+
+select round(123.4567,2);
++-------------------+
+| round(123.4567,2) |
++-------------------+
+|            123.46 |
++-------------------+
+1 row in set (0.00 sec)
+
+select round(123.4567,-2);
++--------------------+
+| round(123.4567,-2) |
++--------------------+
+|                100 |
++--------------------+
+1 row in set (0.00 sec)
+
+mysql> select round(123.4567,-1);
++--------------------+
+| round(123.4567,-1) |
++--------------------+
+|                120 |
++--------------------+
+1 row in set (0.00 sec)
+
+select round(1234567,-3);
++-------------------+
+| round(1234567,-3) |
++-------------------+
+|           1235000 |
++-------------------+
+1 row in set (0.00 sec)
+
+
+난수값 발생 
+select rand();
+
+- 문자열 함수 
+concat(문자,문자) : 문자열 연결
+length(숫자) : 숫자의 길이
+length(문자) : 문자의 길이 (한글은 1글자 =3 , 영어 =1)
+
+
+select adddate('2022-10-13', interval 5 day); 날짜 더하기
+ select subdate('2022-10-13', interval 5 day);  날짜 빼기
+
+
+문자열함수
+
+if(조건식,참,거짓);
+if(조건식,참,if(조건식,참,if(조건식,참,거짓)));
+
+case 
+when 조건1 then 값1
+when 조건1 then 값1
+when 조건1 then 값1
+when 조건1 then 값1
+end;
+
+/* 조인 join */
+
+-- 워크벤치주석처리
+-- 조인(join) 
+-- 두개이상의 테이블을 연결하여 검색할 때 사용
+-- select 속성1, 속성2, ... from 테이블명 a join 테이블 b
+-- on 테이블명 a.외래키명 = 테이블명 b.외래키명;
+
+select std_name, co_name from attend join student 
+on at_st_num = std_num
+join course
+on at_co_code = co_code;
+
+where co_name='기초전기';
+=> 위 값에서 기초전기만 따로 색출
+
+// 워크밴치 Database -> reverse engineer -> 다이아그램 출력
+
+
+/* DB에서 변수사용*/
+set @name = '전봉준';
+
+
+-- 트리거 : 이벤트에 반응하여 자동으로 실행되는 구문
+-- 이벤트가 발생했을 때 데이터의 무결성(일관성)을 지킬 때 사용
+-- if not exists, if exists
+-- create table if not exists [테이블명] : 같은 테이블이 없을 때 '생성'
+-- drop table if exists [테이블명] : 같은 테이블이 있을 때 '삭제'
+
+
+-- delimiter // ; : 문장의 끝을 다른 기호로 표시할 때 사용
+-- create trigger [트리거명] after | before 이벤트 on [테이블명]
+-- for each row
+-- begin 
+-- [실행구문작성;] 실행구문 쿼리는 ;로 끝. 전체 트리거의 끝은 앞 설정한대로 // 
+-- 변수선언
+-- declare 변수명 자료형 기본값;	-> 변수를 선언
+-- set 선언한 변수명에 실제 값 설정 -> setter 같은 역할
+-- new : 이벤트가 발생한 행의 최신 데이터
+-- old : 이벤트가 발생한 행의 이전 데이터 (insert 같은 경우 old가 없음)
+-- end //
+-- delimiter ; 원래대로 변경 
+
+
+
+delimiter //
+create trigger insert_buy after insert on buy 
+for each row
+begin
+-- 실행구문영역
+-- new : buy 테이블에 insert 되는 값
+-- old : 수정시, 원래있던(수정전) 데이터 값 
+declare 
+
+end//
+delimiter ; -- 꼭 ;붙여줘야함
+
+SELECT * FROM example.buy;
+-- buy 테이블에 값이 생성되면 product 테이블에 amount, sale_amount가 변동 되는 트리거 만들기
+/*실행구문영역*/
+/* new : buy 테이블에 insert 되는 값*/
+/* old : 수정시 원래있던(수정전) 데이터 값 */
+drop trigger if exists insert_buy; /*초기화*/
+
+
+/* 변수 사용 규칙
+- @변수명 : 일반 구문에서 사용가능 (선언 + 값대입, 전역변수처럼 사용)
+- 트리거나 프로시저(함수) 안에서 변수를 선언할 때는 declare를 사용하여 선언한 후 변수사용 (지역변수 개념)
+- 트리거나 프로시저 안에서의 변수는 전역변수(@변수명) 사용할 수 없음. 
+- 트리거나 프로시저(함수) 안에서는 일반값으로 변수 사용 (칼럼명과 구분하기 위해 _변수명 형식을 변수명으로 사용)
+*/
+
+-- 프로시져 (procedure) : 함수 (메소드 개념) - 쿼리의 집함
+-- 일련의 쿼리를 마치 하나의 함수처럼 실행하기 위한 쿼리의 집합
+-- 장점 : 한번의 sql 구문으로 기능을 처리할 수 있음. 시간이 단축, 유지보수에 좋음
+-- show procedure status;
+
+/* 
+delimiter//
+create procedure 프로시저명 (in 매개변수, 리턴타입 1: 값이 있을경우, 0 : 값이 없을 경우)
+begin 
+쿼리문 실행;
+end//
+delimeter ;
+
+call 프로시저명 (매개변수 값);
+*/
+
+-- view 생성 (가상테이블)
+-- creat view 테이블명 (필드명) 
+-- as (view의 내용 보통 select많이 사용)
+select * from buy;
+
+-- view 생성
+create view customer_hong as 
+select * from buy where customer = 'hong';
+
+-- view 내용 확인
+select * from customer_hong;
+
+
+-- 재시험자 view 생성 재시험자 명단 (학번으로)
+create view score_F as 
+select at_st_num as '재시험자 학번'from attend where at_repetition = 'y';
+select * from score_F;
+
+-- 재시험자 view 생성 재시험자 명단 (이름으로)
+create view score_F1 as
+select std_name '재시험자 이름' from student
+join attend on at_st_num = std_num
+where at_score = 'F';
+
+select * from score_F1;
